@@ -1,81 +1,137 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Http\Controllers\Api;
 
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entities\Product;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
+use App\Http\Resources\ProductResource;
+use App\Services\ProductService;
+use Illuminate\Http\Request;
 
-class ProductRepository extends EntityRepository implements ProductRepositoryInterface
+class ProductController extends Controller
 {
-    private EntityManagerInterface $em;
+    private ProductService $service;
 
-    // O EntityManager é injetado para permitir persistência e remoção
-    public function setEntityManager(EntityManagerInterface $em): void
+    public function __construct(ProductService $service)
     {
-        $this->em = $em;
+        $this->service = $service;
     }
 
-    public function findByNameAndCategory(string $name, string $category): ?Product
+    public function index(Request $request)
     {
-        return $this->findOneBy(['name' => $name, 'category' => $category]);
+        $page = max(1, (int) $request->query('page', 1));
+        $limit = max(1, (int) $request->query('limit', 10));
+        [$products, $total] = $this->service->list($page, $limit);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Listar produtos',
+            'data' => ProductResource::collection($products),
+            'pagination' => [
+                'total' => $total,
+                'per_page' => $limit,
+                'current_page' => $page,
+                'last_page' => ceil($total / $limit),
+            ],
+        ]);
     }
 
-    public function searchByNameOrDescription(string $query, int $offset, int $limit): array
+    public function show(int $id)
     {
-        return $this->createQueryBuilder('p')
-            ->where('p.name LIKE :query OR p.description LIKE :query')
-            ->setParameter('query', '%' . $query . '%')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+        $product = $this->service->get($id);
+        if (!$product) {
+            return response()->json(['status' => false, 'message' => 'Produto não encontrado'], 404);
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Detalhes do produto',
+            'data' => new ProductResource($product),
+        ]);
     }
 
-    public function countByNameOrDescription(string $query): int
+    public function store(StoreProductRequest $request)
     {
-        return (int) $this->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->where('p.name LIKE :query OR p.description LIKE :query')
-            ->setParameter('query', '%' . $query . '%')
-            ->getQuery()
-            ->getSingleScalarResult();
+        try {
+            $product = $this->service->create($request->validated());
+            return response()->json([
+                'status' => true,
+                'message' => 'Produto criado com sucesso',
+                'data' => new ProductResource($product),
+            ], 201);
+        } catch (\DomainException $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 422);
+        }
     }
 
-    public function getDistinctCategories(): array
+    public function update(UpdateProductRequest $request, int $id)
     {
-        $result = $this->createQueryBuilder('p')
-            ->select('DISTINCT p.category')
-            ->getQuery()
-            ->getArrayResult();
-
-        return array_column($result, 'category');
-    }   //Remover // o método getDistinctCategories() se não for necessário
-
-    public function findById(int $id): ?Product
-    {
-        return $this->find($id);
+        $product = $this->service->get($id);
+        if (!$product) {
+            return response()->json(['status' => false, 'message' => 'Produto não encontrado'], 404);
+        }
+        try {
+            $product = $this->service->update($product, $request->validated());
+            return response()->json([
+                'status' => true,
+                'message' => 'Produto atualizado com sucesso',
+                'data' => new ProductResource($product),
+            ]);
+        } catch (\DomainException $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 422);
+        }
     }
 
-    public function findBy(array $criteria, $orderBy = null, $limit = null, $offset = null): array
+    public function destroy(int $id)
     {
-        return parent::findBy($criteria, $orderBy, $limit, $offset);
+        $product = $this->service->get($id);
+        if (!$product) {
+            return response()->json(['status' => false, 'message' => 'Produto não encontrado'], 404);
+        }
+        $this->service->delete($product);
+        return response()->json(['status' => true, 'message' => 'Produto excluído com sucesso']);
     }
 
-    public function save(Product $product): void
+    public function search(Request $request)
     {
-        $this->em->persist($product);
-        $this->em->flush();
+        $query = $request->query('q', '');
+        $page = max(1, (int) $request->query('page', 1));
+        $limit = max(1, (int) $request->query('limit', 10));
+        [$products, $total] = $this->service->search($query, $page, $limit);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Resultados da pesquisa',
+            'data' => ProductResource::collection($products),
+            'pagination' => [
+                'total' => $total,
+                'per_page' => $limit,
+                'current_page' => $page,
+                'last_page' => ceil($total / $limit),
+            ],
+        ]);
     }
 
-    public function remove(Product $product): void
+    public function categories()
     {
-        $this->em->remove($product);
-        $this->em->flush();
+        $categories = $this->service->categories();
+        return response()->json([
+            'status' => true,
+            'message' => 'Categorias de produtos',
+            'data' => $categories,
+        ]);
     }
 
-    public function count(array $criteria = []): int
+    public function productsByCategory(string $category)
     {
-        return parent::count($criteria);
+        $products = $this->service->productsByCategory($category);
+        if (empty($products)) {
+            return response()->json(['status' => false, 'message' => 'Nenhum produto encontrado para esta categoria'], 404);
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Produtos na categoria: ' . $category,
+            'data' => ProductResource::collection($products),
+        ]);
     }
 }
