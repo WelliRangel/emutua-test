@@ -1,7 +1,7 @@
 # Backend API — Laravel 12 + Doctrine ORM
 
 ## Visão Geral
-API RESTful desenvolvida com Laravel 12 e Doctrine ORM, seguindo princípios de:
+API RESTful desenvolvida com Laravel 10 e Doctrine ORM, seguindo princípios de:
 - **Separação de Camadas**: Controllers, Services, Repositories e Entities.
 - **Injeção de Dependência**: Interfaces e contêiner de serviço do Laravel para abstração.
 - **Padrões de Projeto**: Repository Pattern, Service Layer, Dependency Injection.
