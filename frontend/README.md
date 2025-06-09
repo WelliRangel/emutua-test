@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend — Next.js + Tailwind CSS
 
-## Getting Started
+## Visão Geral
+Aplicação web construída em Next.js (v15.2.4) com foco em:
+- **Componentização** atômica e reutilizável  
+- **Design System** baseado em Radix UI + Tailwind CSS  
+- **Form Handling** robusto com React Hook Form e Zod  
+- **Tematização** dinâmica com Next Themes  
+- **Visualização de Dados** via Recharts  
+- **Acessibilidade** e performance
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Estrutura de Pastas
+
+```
+frontend/
+├── .next/                  # Build e cache do Next.js
+├── app/                    # Pastas e arquivos de rotas App Router
+├── components/             # Componentes reutilizáveis
+├── hooks/                  # Custom Hooks (ex: useTheme, useFetch)
+├── lib/                    # Bibliotecas e abstração de dados
+├── public/                 # Arquivos estáticos (imagens, ícones)
+├── styles/                 # CSS global e arquivos Tailwind
+├── .dockerignore
+├── .gitignore
+├── components.json         # Configurações de componentes ou storybook
+├── Dockerfile
+├── docker-compose.yaml
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── package-lock.json
+├── pnpm-lock.yaml
+├── postcss.config.mjs
+├── tailwind.config.ts
+└── tsconfig.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Padrões e Bibliotecas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Componentização e Design System
+- **Radix UI**: primitives acessíveis (Accordion, Dialog, Popover etc.)  
+- **Tailwind CSS** + **class-variance-authority**: criação de classes utilitárias e variantes de estilo.  
+- **clsx**: composição condicional de classes.
 
-## Learn More
+### Tipagem e Validação
+- **TypeScript** (v5): tipagem estática em toda a base de código.  
+- **Zod**: schemas de validação para formular dados e garantir integridade.
 
-To learn more about Next.js, take a look at the following resources:
+### Form Handling
+- **React Hook Form** + **@hookform/resolvers/zod**:  
+  - Formulários performáticos e com validação declarativa via Zod.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```tsx
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { schema } from "../utils/schemas";
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+const { register, handleSubmit, formState } = useForm({
+  resolver: zodResolver(schema),
+});
+```
 
-## Deploy on Vercel
+### Tematização
+- **next-themes**: tema claro/escuro com persistência em localStorage e suporte a SSR.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```tsx
+import { ThemeProvider } from "next-themes";
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<ThemeProvider attribute="class">
+  <Component {...pageProps} />
+</ThemeProvider>
+```
+
+### Visualização de Dados
+- **Recharts**: gráficos interativos (bar, line, pie) diretamente em React.
+
+```tsx
+<LineChart data={data}>
+  <Line dataKey="value" />
+</LineChart>
+```
+
+---
+
+## Decisões Técnicas
+
+1. **Isolamento de Lógica**  
+   - **`lib/`** e **`services/`** para abstração de chamadas HTTP e lógica de negócio.  
+   - **`hooks/`** para reutilização de lógica de estado.
+
+2. **Performance**  
+   - Híbrido SSR/SSG do Next.js para SEO e carregamento otimizado.  
+   - **Dynamic Imports** para code-splitting.
+
+3. **Estilo**  
+   - **Tailwind CSS** customizado (`tailwind.config.ts`) para tema e breakpoints.  
+   - **tailwind-merge** para mesclar classes quando necessário.
+
+---
+
+> **Observação**:  
+> A quebra de componentes em átomos, moléculas e organismos via Atomic Design está em progresso e pode apresentar inconsistências.
+
+---
+
+## Contato
+
+- Autor: Wellington Rangel  
