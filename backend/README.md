@@ -128,7 +128,3 @@ docker exec -it laravel_app bash
 
 ---
 
-## Observações
-
-- Ajuste prefixo de rota em `routes/api.php` conforme namespace.  
-- Para adicionar nova camada, crie Interface e implementação, e registre no Service Provider.
