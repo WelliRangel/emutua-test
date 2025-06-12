@@ -6,6 +6,8 @@
 
 ## Descrição
 
+(Frontend alternativo e 100% funcional 'https://emutua-products.vercel.app/', o frontend que está no repositorio atual está em adaptação para deploy)
+
 Este repositório contém um monorepo fullstack dividido em dois projetos:
 
 - **Backend**: API REST desenvolvida em PHP 8.2 com Laravel 10 e Doctrine ORM.  
