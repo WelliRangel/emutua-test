@@ -6,7 +6,7 @@
 
 ## Descrição
 
-(Frontend alternativo e 100% funcional 'https://emutua-products.vercel.app/', o frontend que está no repositorio atual está em adaptação para deploy)
+(Frontend alternativo e 100% funcional 'https://content-management-system-product.vercel.app/', o frontend que está no repositorio atual está em adaptação para deploy)
 
 Este repositório contém um monorepo fullstack dividido em dois projetos:
 
