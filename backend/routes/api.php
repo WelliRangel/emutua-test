@@ -9,7 +9,6 @@ Route::get('/produtos', [ProductController::class, 'index'])->name('api.produtos
 Route::get('/produtos/search', [ProductController::class, 'search'])->name('api.produtos.search');
 Route::get('/produtos/categorias', [ProductController::class, 'categories'])->name('api.produtos.categories');  // Remover rota duplicada
 Route::get('/produtos/categorias/{category}', [ProductController::class, 'productsByCategory'])->name('api.produtos.showByCategory'); //Remover
-
 // ROTAS COM PARÂMETRO POR ÚLTIMO:
 Route::get('/produtos/{id}', [ProductController::class, 'show']);
 Route::post('/produtos', [ProductController::class, 'store']);
