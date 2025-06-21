@@ -56,8 +56,8 @@ A orquestração do ambiente de desenvolvimento e produção é feita através d
 
 1. Clone este repositório:
    ```bash
-   git clone https://github.com/WelliRangel/emutua-test.git
-   cd emutua-test
+   git clone https://github.com/WelliRangel/product-cms.git
+   cd product-cms
    ```
 
 2. Crie e configure as variáveis de ambiente do backend:
